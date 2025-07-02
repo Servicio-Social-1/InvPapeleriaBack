@@ -20,7 +20,7 @@ async function bootstrap() {
 }
 bootstrap();
 
-const allowlist = ['http://localhost:4200', 'https://papeleria.servicios.space', 'http://papeleria.servicios.space', 'https://papeleria.suacdap.site']
+const allowlist = ['http://localhost:4200', 'https://papeleria.alumbrado.net']
 const corsOptionsDelegate = function (req, callback) {
     let corsOptions;
     if (allowlist.indexOf(req.header('Origin')) !== -1) {
