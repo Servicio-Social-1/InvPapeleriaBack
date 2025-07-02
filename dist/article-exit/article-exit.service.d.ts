@@ -1,0 +1,34 @@
+import { CreateArticleExitDto } from './dto/create-article-exit/create-article-exit.dto';
+import { ArticleExitRepository } from './repository/article-exit.repository';
+import { AreaService } from '../area/area.service';
+import { UserService } from '../auth/user/user.service';
+import { PetitionerService } from '../petitioner/petitioner.service';
+import { ArticleExit } from './entities/article-exit.entity';
+import { ArticleExitDetailsRepository } from './repository/article-exit-details.repository';
+import { ArticlesService } from '../articles/articles.service';
+import { PaginationDto } from '../shared/dto/pagination.dto';
+import { SuccessfullyResponse } from '../shared/interfaces/success-response';
+import { DbErrorHandlerService } from '../shared/services/db-error-handler/db-error-handler.service';
+import { DataSource } from 'typeorm';
+export declare class ArticleExitService {
+    private readonly articleExitRepository;
+    private readonly articleExitDetailsRepository;
+    private readonly areaService;
+    private readonly userService;
+    private readonly articleService;
+    private readonly petitionerService;
+    private readonly dbErrorHandlerService;
+    private readonly dataSource;
+    constructor(articleExitRepository: ArticleExitRepository, articleExitDetailsRepository: ArticleExitDetailsRepository, areaService: AreaService, userService: UserService, articleService: ArticlesService, petitionerService: PetitionerService, dbErrorHandlerService: DbErrorHandlerService, dataSource: DataSource);
+    create(createArticleExitDto: CreateArticleExitDto): Promise<ArticleExit>;
+    private createArticleExitDetails;
+    findAll(paginationDto: PaginationDto): Promise<ArticleExit[]>;
+    count(): Promise<number>;
+    findByTerm(term: string, paginationDto: PaginationDto): Promise<ArticleExit[]>;
+    findOneById(id: number): Promise<ArticleExit>;
+    findById(id: number): Promise<ArticleExit>;
+    update(id: number, createArticleExitDto: CreateArticleExitDto): Promise<ArticleExit>;
+    remove(id: number): Promise<Error | SuccessfullyResponse>;
+    private decreaseArticleStock;
+    private increaseStock;
+}
