@@ -20,13 +20,16 @@ async function bootstrap() {
 }
 bootstrap();
 
-const allowlist = ['http://localhost:4200', 'https://papeleria.alumbrado.net']
+const allowlist = ['http://localhost:4200', 'https://papeleria.alumbrado.net', "*"]
 const corsOptionsDelegate = function (req, callback) {
     let corsOptions;
-    if (allowlist.indexOf(req.header('Origin')) !== -1) {
-        corsOptions = { origin: true } // reflect (enable) the requested origin in the CORS response
+    const origin = req.header('Origin');
+
+    if (allowlist.includes('*') || allowlist.includes(origin)) {
+        corsOptions = { origin: true }; // Allow all origins if '*' is in the allowlist or if the origin is explicitly allowed
     } else {
-        corsOptions = { origin: false } // disable CORS for this request
+        corsOptions = { origin: false }; // Disable CORS for this request
     }
-    callback(null, corsOptions) // callback expects two parameters: error and options
-}
+
+    callback(null, corsOptions); // callback expects two parameters: error and options
+};
