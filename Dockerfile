@@ -25,7 +25,7 @@ FROM httpd:2.4
 # Enable mod_rewrite
 RUN sed -i '/LoadModule rewrite_module/s/^#//g' /usr/local/apache2/conf/httpd.conf && \
     sed -i 's/AllowOverride None/AllowOverride All/g' /usr/local/apache2/conf/httpd.conf && \
-    sed -i 's/Listen 80/Listen 4300/g' /usr/local/apache2/conf/httpd.conf
+    sed -i 's/Listen 80/Listen 8081/g' /usr/local/apache2/conf/httpd.conf
 
 # Expose port 8081
 EXPOSE 8081
