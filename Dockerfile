@@ -1,20 +1,20 @@
-# # Use the official Node.js image as the base image
-# FROM node:18 as build
+# Use the official Node.js image as the base image
+FROM node:18 as build
 
-# # Set the working directory
-# WORKDIR /app
+# Set the working directory
+WORKDIR /app
 
-# # Copy package.json and package-lock.json
-# COPY package.json package-lock.json ./
+# Copy package.json and package-lock.json
+COPY package.json package-lock.json ./
 
-# # Install dependencies
-# RUN npm install
+# Install dependencies
+RUN npm install
 
-# # Copy the rest of the application code
-# COPY . .
+# Copy the rest of the application code
+COPY . .
 
-# # Build the NestJS application
-# RUN npm run build
+# Build the NestJS application
+RUN npm run build
 
 # Use the official Apache HTTP Server image as the base image for serving the app
 FROM httpd:2.4
