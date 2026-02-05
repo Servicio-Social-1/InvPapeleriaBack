@@ -20,7 +20,7 @@ RUN npm run build
 FROM httpd:2.4
 
 # Copy the built application to the Apache server's web directory
-# COPY --from=build /app/dist /usr/local/apache2/htdocs/
+ COPY --from=build /app/dist /usr/local/apache2/htdocs/
 
 # Enable mod_rewrite
 RUN sed -i '/LoadModule rewrite_module/s/^#//g' /usr/local/apache2/conf/httpd.conf && \
