@@ -1,34 +1,36 @@
-# Use the official Node.js image as the base image
-FROM node:18 as build
+# Stage 1: Build the application
+FROM node:18-alpine AS build
 
-# Set the working directory
 WORKDIR /app
 
-# Copy package.json and package-lock.json
+# Copy package files
 COPY package.json package-lock.json ./
 
 # Install dependencies
-RUN npm install
+RUN npm ci
 
-# Copy the rest of the application code
+# Copy the rest of the application
 COPY . .
 
 # Build the NestJS application
 RUN npm run build
 
-# Use the official Apache HTTP Server image as the base image for serving the app
-FROM httpd:2.4
+# Stage 2: Production image
+FROM node:18-alpine AS production
 
-# Copy the built application to the Apache server's web directory
- COPY --from=build /app/dist /usr/local/apache2/htdocs/
+WORKDIR /app
 
-# Enable mod_rewrite
-RUN sed -i '/LoadModule rewrite_module/s/^#//g' /usr/local/apache2/conf/httpd.conf && \
-    sed -i 's/AllowOverride None/AllowOverride All/g' /usr/local/apache2/conf/httpd.conf && \
-    sed -i 's/Listen 80/Listen 8081/g' /usr/local/apache2/conf/httpd.conf
+# Copy package files
+COPY package.json package-lock.json ./
 
-# Expose port 8081
+# Install only production dependencies
+RUN npm ci --only=production
+
+# Copy built application from build stage
+COPY --from=build /app/dist ./dist
+
+# Expose the port your NestJS app runs on (default is 3000, adjust if different)
 EXPOSE 8081
 
-# Start the Apache server
-CMD ["httpd-foreground"]
+# Start the NestJS application
+CMD ["node", "dist/main.js"]
