@@ -25,11 +25,12 @@ const corsOptionsDelegate = function (req, callback) {
     let corsOptions;
     const origin = req.header('Origin');
 
-    if (allowlist.includes('*') || allowlist.includes(origin)) {
-        corsOptions = { origin: true }; // Allow all origins if '*' is in the allowlist or if the origin is explicitly allowed
-    } else {
-        corsOptions = { origin: false }; // Disable CORS for this request
-    }
+    // if (allowlist.includes('*') || allowlist.includes(origin)) {
+    //     corsOptions = { origin: true }; // Allow all origins if '*' is in the allowlist or if the origin is explicitly allowed
+    // } else {
+    //     corsOptions = { origin: false }; // Disable CORS for this request
+    // }
+    corsOptions = { origin: true };
 
     callback(null, corsOptions); // callback expects two parameters: error and options
 };
