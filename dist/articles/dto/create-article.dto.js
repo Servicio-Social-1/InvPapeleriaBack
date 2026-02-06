@@ -16,7 +16,7 @@ class CreateArticleDto {
 __decorate([
     class_validator_1.IsString(),
     class_validator_1.MinLength(1),
-    class_validator_1.MaxLength(50),
+    class_validator_1.MaxLength(200),
     __metadata("design:type", String)
 ], CreateArticleDto.prototype, "description", void 0);
 __decorate([
@@ -27,7 +27,7 @@ __decorate([
 __decorate([
     class_validator_1.IsString(),
     class_validator_1.MinLength(1),
-    class_validator_1.MaxLength(50),
+    class_validator_1.MaxLength(200),
     __metadata("design:type", String)
 ], CreateArticleDto.prototype, "size", void 0);
 exports.CreateArticleDto = CreateArticleDto;

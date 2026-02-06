@@ -6,6 +6,6 @@ export declare class AreaController {
     constructor(areaService: AreaService);
     create(createAreaDto: CreateAreaDto): Promise<import("./entities/area.entity").Area>;
     findAll(): Promise<import("./entities/area.entity").Area[]>;
-    update(id: number, updateAreaDto: UpdateAreaDto): Promise<import("../shared/interfaces/success-response").SuccessfullyResponse | Error>;
-    remove(id: number): Promise<import("../shared/interfaces/success-response").SuccessfullyResponse | Error>;
+    update(id: number, updateAreaDto: UpdateAreaDto): Promise<Error | import("../shared/interfaces/success-response").SuccessfullyResponse>;
+    remove(id: number): Promise<Error | import("../shared/interfaces/success-response").SuccessfullyResponse>;
 }

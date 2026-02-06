@@ -10,5 +10,5 @@ export declare class ArticleEntryController {
     findByArticleName(name: string, paginationDto: PaginationDto): Promise<import("./entities/article-entry.entity").ArticleEntry[]>;
     getById(id: number): Promise<import("./entities/article-entry.entity").ArticleEntry>;
     update(id: number, createArticleEntryDto: CreateArticleEntryDto): Promise<import("./entities/article-entry-details").ArticleEntryDetail[]>;
-    remove(id: number): Promise<import("../shared/interfaces/success-response").SuccessfullyResponse | Error>;
+    remove(id: number): Promise<Error | import("../shared/interfaces/success-response").SuccessfullyResponse>;
 }

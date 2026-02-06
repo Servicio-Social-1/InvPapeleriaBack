@@ -8,6 +8,6 @@ export declare class PetitionerController {
     findAllByAreaId(areaId: number): Promise<any>;
     findAll(): Promise<import("./entities/petitioner.entity").Petitioner[]>;
     findById(areaId: number): Promise<import("./entities/petitioner.entity").Petitioner>;
-    update(id: number, updatePetitionerDto: UpdatePetitionerDto): Promise<import("../shared/interfaces/success-response").SuccessfullyResponse | Error>;
-    remove(id: number): Promise<import("../shared/interfaces/success-response").SuccessfullyResponse | Error>;
+    update(id: number, updatePetitionerDto: UpdatePetitionerDto): Promise<Error | import("../shared/interfaces/success-response").SuccessfullyResponse>;
+    remove(id: number): Promise<Error | import("../shared/interfaces/success-response").SuccessfullyResponse>;
 }

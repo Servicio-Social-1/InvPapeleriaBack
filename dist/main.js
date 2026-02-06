@@ -17,15 +17,11 @@ async function bootstrap() {
     logger.log(`App running on port ${process.env.PORT}`);
 }
 bootstrap();
-const allowlist = ['http://localhost:4200', 'https://papeleria.servicios.space', 'http://papeleria.servicios.space', 'https://papeleria.suacdap.site'];
+const allowlist = ['http://localhost:4200', 'https://papeleria.alumbrado.net', "*"];
 const corsOptionsDelegate = function (req, callback) {
     let corsOptions;
-    if (allowlist.indexOf(req.header('Origin')) !== -1) {
-        corsOptions = { origin: true };
-    }
-    else {
-        corsOptions = { origin: false };
-    }
+    const origin = req.header('Origin');
+    corsOptions = { origin: true };
     callback(null, corsOptions);
 };
 //# sourceMappingURL=main.js.map

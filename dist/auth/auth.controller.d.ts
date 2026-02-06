@@ -58,7 +58,7 @@ export declare class AuthController {
     hasSession(tokenDto: TokenDto): boolean;
     findAll(paginationDto: PaginationDto): Promise<User[]>;
     findOne(term: string & number): Promise<User>;
-    update(id: number, updateUserDto: UpdateUserDto): Promise<import("../shared/interfaces/success-response").SuccessfullyResponse | Error>;
-    updateUserWithRole(id: number, updateUserWithRoleDto: UpdateUserRoleDto): Promise<import("../shared/interfaces/success-response").SuccessfullyResponse | Error>;
-    remove(id: number): Promise<import("../shared/interfaces/success-response").SuccessfullyResponse | Error>;
+    update(id: number, updateUserDto: UpdateUserDto): Promise<Error | import("../shared/interfaces/success-response").SuccessfullyResponse>;
+    updateUserWithRole(id: number, updateUserWithRoleDto: UpdateUserRoleDto): Promise<Error | import("../shared/interfaces/success-response").SuccessfullyResponse>;
+    remove(id: number): Promise<Error | import("../shared/interfaces/success-response").SuccessfullyResponse>;
 }

@@ -9,6 +9,6 @@ export declare class ArticlesController {
     findAll(paginationDto: PaginationDto): Promise<import("./entities/article.entity").Article[]>;
     count(): Promise<number>;
     findByidOrName(term: string & number, paginationDto: PaginationDto): Promise<any>;
-    update(id: number, updateArticleDto: UpdateArticleDto): Promise<import("../shared/interfaces/success-response").SuccessfullyResponse | Error>;
-    remove(id: number): Promise<import("../shared/interfaces/success-response").SuccessfullyResponse | Error>;
+    update(id: number, updateArticleDto: UpdateArticleDto): Promise<Error | import("../shared/interfaces/success-response").SuccessfullyResponse>;
+    remove(id: number): Promise<Error | import("../shared/interfaces/success-response").SuccessfullyResponse>;
 }

@@ -10,5 +10,5 @@ export declare class ArticleExitController {
     findByArticleName(name: string, paginationDto: PaginationDto): Promise<import("./entities/article-exit.entity").ArticleExit[]>;
     getById(id: number): Promise<import("./entities/article-exit.entity").ArticleExit>;
     update(id: number, createArticleExitDto: CreateArticleExitDto): Promise<import("./entities/article-exit.entity").ArticleExit>;
-    remove(id: number): Promise<import("../shared/interfaces/success-response").SuccessfullyResponse | Error>;
+    remove(id: number): Promise<Error | import("../shared/interfaces/success-response").SuccessfullyResponse>;
 }

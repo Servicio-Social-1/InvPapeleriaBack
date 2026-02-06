@@ -4,7 +4,7 @@ export class CreateArticleDto {
 
     @IsString()
     @MinLength(1)
-    @MaxLength(50)
+    @MaxLength(200)
     description: string;
 
     @IsInt()
@@ -13,6 +13,6 @@ export class CreateArticleDto {
 
     @IsString()
     @MinLength(1)
-    @MaxLength(50)
+    @MaxLength(200)
     size: string;
 }
