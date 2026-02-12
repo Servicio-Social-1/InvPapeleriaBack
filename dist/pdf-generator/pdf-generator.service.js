@@ -204,7 +204,7 @@ let PdfGeneratorService = class PdfGeneratorService {
                     this.textInRow({ doc, text: articleExit.id + '', x: 540, y: 120, width: 200, font: 'Sans-Pro' });
                     this.textInRow({ doc, text: `ÁREA SOLICITANTE:`, x: 30, y: 140, width: 200, font: 'Sans-Pro-Bold' });
                     this.textInRow({ doc, text: `PÁGINA: ${page}`, x: 440, y: 140, width: 200, font: 'Sans-Pro' });
-                    this.textInRow({ doc, text: articleExit.area.name, x: 135, y: 140, width: 200, font: 'Sans-Pro' });
+                    this.textInRow({ doc, text: articleExit.area.name, x: 135, y: 140, width: 200, font: 'Sans-Pro', fontSize: 10 });
                     doc.x = 30;
                     doc.image(path, 55, 5, { height: 115, width: 490 });
                     doc.table({ headers: inventoryData[0].headers, datas: inventoryData[0].datas.slice(0, 24) });
