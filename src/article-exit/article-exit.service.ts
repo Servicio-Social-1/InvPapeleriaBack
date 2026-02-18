@@ -18,6 +18,7 @@ import { DbErrorHandlerService } from '../shared/services/db-error-handler/db-er
 import { DataSource } from 'typeorm';
 import { Article } from '../articles/entities/article.entity';
 import { ArticleExitDetail } from './entities/article-exit-details.entity';
+import { log } from 'console';
 
 @Injectable()
 export class ArticleExitService {
@@ -125,6 +126,7 @@ export class ArticleExitService {
     }
 
     async update(id: number, createArticleExitDto: CreateArticleExitDto) {
+        const editArticles = createArticleExitDto.articleExitDetails.map((articleDetail) => articleDetail);        
         if (!createArticleExitDto.articleExitDetails.length) {
             throw new BadRequestException(
                 'No has agregado detalles para actualizar',
@@ -136,12 +138,27 @@ export class ArticleExitService {
                 return this.articleService.findById(articleDetail.idArticle);
             }),
         );
+        
+        //Find the removed articles
+        const removedArticles = articleExit.articleExitDetail.filter(
+            (existingDetail) =>
+                !createArticleExitDto.articleExitDetails.some(
+                    (newDetail) => newDetail.idArticle === existingDetail.article.id,
+                ),
+        );
+
+        removedArticles.forEach((item) => {
+            this.articleService.findById(item.article.id).then((article) => {
+                this.articleService.update(article.id, { stock: article.stock + Number(item.amount) });
+            })
+        });
+        const savedArticles = articleExit.articleExitDetail.map((articleExitD) => articleExitD.article);
         await this.decreaseArticleStock(
             articles,
             createArticleExitDto.articleExitDetails,
             articleExit.articleExitDetail,
         );
-        await this.articleExitDetailsRepository.deleteAllById(id);
+        //await this.articleExitDetailsRepository.deleteAllById(id);
         const articleExitDetails = await Promise.all(
             createArticleExitDto.articleExitDetails.map(
                 async (articleDetail: CreateArticleExitDetailsDto) =>
@@ -154,7 +171,7 @@ export class ArticleExitService {
                     }),
             ),
         );
-        await this.articleExitDetailsRepository.saveMany(articleExitDetails);
+        //await this.articleExitDetailsRepository.saveMany(articleExitDetails);
         const newArticleExit = await this.findById(id);
         return newArticleExit;
     }
@@ -274,4 +291,6 @@ export class ArticleExitService {
             );
         }
     }
+
+
 }
