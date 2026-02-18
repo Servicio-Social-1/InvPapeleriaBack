@@ -158,7 +158,7 @@ export class ArticleExitService {
             createArticleExitDto.articleExitDetails,
             articleExit.articleExitDetail,
         );
-        //await this.articleExitDetailsRepository.deleteAllById(id);
+        await this.articleExitDetailsRepository.deleteAllById(id);
         const articleExitDetails = await Promise.all(
             createArticleExitDto.articleExitDetails.map(
                 async (articleDetail: CreateArticleExitDetailsDto) =>
@@ -171,7 +171,7 @@ export class ArticleExitService {
                     }),
             ),
         );
-        //await this.articleExitDetailsRepository.saveMany(articleExitDetails);
+        await this.articleExitDetailsRepository.saveMany(articleExitDetails);
         const newArticleExit = await this.findById(id);
         return newArticleExit;
     }
