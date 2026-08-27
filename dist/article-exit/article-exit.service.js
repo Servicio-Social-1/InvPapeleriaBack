@@ -124,50 +124,50 @@ let ArticleExitService = class ArticleExitService {
         await queryRunner.connect();
         await queryRunner.startTransaction();
         try {
-            if (articleExitDetail) {
-                await Promise.all(articles.map((article) => {
-                    const articleAmount = createArticleExitDetailsDto.find((c) => {
-                        return c.idArticle === article.id;
-                    }).amount;
-                    const articleExitAlreadyExistsamount = +articleExitDetail.find((articleExitD) => articleExitD.article.id === article.id)?.amount;
-                    let newStock;
-                    if (!articleExitAlreadyExistsamount) {
-                        newStock = article.stock - articleAmount;
-                    }
-                    else {
-                        newStock =
-                            article.stock +
-                                articleExitAlreadyExistsamount -
-                                articleAmount;
-                    }
-                    if (newStock < 0) {
-                        throw new common_1.BadRequestException('No es posible asignar un valor negativo al stock de un articulo');
-                    }
-                    return queryRunner.manager.update(article_entity_1.Article, article.id, {
-                        stock: newStock,
-                    });
-                }));
-                await queryRunner.commitTransaction();
-                await queryRunner.release();
-            }
-            else {
-                await Promise.all(articles.map((article) => {
-                    const articleAmount = createArticleExitDetailsDto.find((c) => {
-                        return c.idArticle === article.id;
-                    }).amount;
-                    return queryRunner.manager.update(article_entity_1.Article, article.id, {
-                        stock: article.stock - articleAmount,
-                    });
-                }));
-                await queryRunner.commitTransaction();
-                await queryRunner.release();
-            }
+            const updates = articles.map((article) => {
+                const articleAmount = createArticleExitDetailsDto.find((c) => {
+                    return c.idArticle === article.id;
+                }).amount;
+                const articleExitAlreadyExistsamount = articleExitDetail
+                    ? +articleExitDetail.find((articleExitD) => articleExitD.article.id === article.id)?.amount
+                    : undefined;
+                let newStock;
+                if (!articleExitAlreadyExistsamount) {
+                    newStock = article.stock - articleAmount;
+                }
+                else {
+                    newStock =
+                        article.stock +
+                            articleExitAlreadyExistsamount -
+                            articleAmount;
+                }
+                if (newStock < 0) {
+                    throw new common_1.BadRequestException(`No es posible asignar un valor negativo al stock del articulo "${article.description}" (id: ${article.id}). ` +
+                        `stock actual: ${article.stock}, cantidad anterior en el vale: ${articleExitAlreadyExistsamount || 0}, cantidad nueva solicitada: ${articleAmount}, stock resultante: ${newStock}`);
+                }
+                return queryRunner.manager.update(article_entity_1.Article, article.id, {
+                    stock: newStock,
+                });
+            });
+            const removedUpdates = (articleExitDetail ?? [])
+                .filter((existingDetail) => !createArticleExitDetailsDto.some((c) => c.idArticle === existingDetail.article.id))
+                .map((removedDetail) => queryRunner.manager.update(article_entity_1.Article, removedDetail.article.id, {
+                stock: removedDetail.article.stock +
+                    Number(removedDetail.amount),
+            }));
+            await Promise.all([...updates, ...removedUpdates]);
+            await queryRunner.commitTransaction();
         }
         catch (error) {
-            console.log(error);
             await queryRunner.rollbackTransaction();
+            if (error instanceof common_1.BadRequestException) {
+                throw error;
+            }
+            console.log(error);
+            throw new common_1.BadRequestException('Ocurrió un error al actualizar el stock de los artículos');
+        }
+        finally {
             await queryRunner.release();
-            throw new common_1.BadRequestException('No es posible asignar un valor negativo al stock de un articulo');
         }
     }
     async increaseStock(articleExit) {

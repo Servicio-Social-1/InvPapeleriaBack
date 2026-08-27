@@ -126,7 +126,6 @@ export class ArticleExitService {
     }
 
     async update(id: number, createArticleExitDto: CreateArticleExitDto) {
-        const editArticles = createArticleExitDto.articleExitDetails.map((articleDetail) => articleDetail);        
         if (!createArticleExitDto.articleExitDetails.length) {
             throw new BadRequestException(
                 'No has agregado detalles para actualizar',
@@ -138,21 +137,7 @@ export class ArticleExitService {
                 return this.articleService.findById(articleDetail.idArticle);
             }),
         );
-        
-        //Find the removed articles
-        const removedArticles = articleExit.articleExitDetail.filter(
-            (existingDetail) =>
-                !createArticleExitDto.articleExitDetails.some(
-                    (newDetail) => newDetail.idArticle === existingDetail.article.id,
-                ),
-        );
 
-        removedArticles.forEach((item) => {
-            this.articleService.findById(item.article.id).then((article) => {
-                this.articleService.update(article.id, { stock: article.stock + Number(item.amount) });
-            })
-        });
-        const savedArticles = articleExit.articleExitDetail.map((articleExitD) => articleExitD.article);
         await this.decreaseArticleStock(
             articles,
             createArticleExitDto.articleExitDetails,
@@ -207,64 +192,71 @@ export class ArticleExitService {
         await queryRunner.startTransaction();
 
         try {
-            if (articleExitDetail) {
-                await Promise.all(
-                    articles.map((article) => {
-                        const articleAmount = createArticleExitDetailsDto.find(
-                            (c) => {
-                                return c.idArticle === article.id;
-                            },
-                        ).amount;
-                        // Es posible que al editar el vale de salida se agregue otro articulo en el formulario, en ese caso este valor dara undefined
-                        const articleExitAlreadyExistsamount =
-                            +articleExitDetail.find(
-                                (articleExitD) =>
-                                    articleExitD.article.id === article.id,
-                            )?.amount;
-                        let newStock: number;
-                        if(!articleExitAlreadyExistsamount) {
-                            newStock = article.stock - articleAmount;
-                        }else {
-                            newStock =
-                                article.stock +
-                                articleExitAlreadyExistsamount -
-                                articleAmount;
-                        }
-                        if (newStock < 0) {
-                            throw new BadRequestException(
-                                'No es posible asignar un valor negativo al stock de un articulo',
-                            );
-                        }
-                        return queryRunner.manager.update(Article, article.id, {
-                            stock: newStock,
-                        });
+            const updates = articles.map((article) => {
+                const articleAmount = createArticleExitDetailsDto.find(
+                    (c) => {
+                        return c.idArticle === article.id;
+                    },
+                ).amount;
+                // Es posible que al editar el vale de salida se agregue otro articulo en el formulario, en ese caso este valor dara undefined
+                const articleExitAlreadyExistsamount = articleExitDetail
+                    ? +articleExitDetail.find(
+                          (articleExitD) =>
+                              articleExitD.article.id === article.id,
+                      )?.amount
+                    : undefined;
+                let newStock: number;
+                if (!articleExitAlreadyExistsamount) {
+                    newStock = article.stock - articleAmount;
+                } else {
+                    newStock =
+                        article.stock +
+                        articleExitAlreadyExistsamount -
+                        articleAmount;
+                }
+                if (newStock < 0) {
+                    throw new BadRequestException(
+                        `No es posible asignar un valor negativo al stock del articulo "${article.description}" (id: ${article.id}). ` +
+                            `stock actual: ${article.stock}, cantidad anterior en el vale: ${
+                                articleExitAlreadyExistsamount || 0
+                            }, cantidad nueva solicitada: ${articleAmount}, stock resultante: ${newStock}`,
+                    );
+                }
+                return queryRunner.manager.update(Article, article.id, {
+                    stock: newStock,
+                });
+            });
+
+            // Los articulos que existian en el vale y ya no vienen en el nuevo detalle
+            // se eliminaron del vale, por lo que su stock debe devolverse.
+            const removedUpdates = (articleExitDetail ?? [])
+                .filter(
+                    (existingDetail) =>
+                        !createArticleExitDetailsDto.some(
+                            (c) => c.idArticle === existingDetail.article.id,
+                        ),
+                )
+                .map((removedDetail) =>
+                    queryRunner.manager.update(Article, removedDetail.article.id, {
+                        stock:
+                            removedDetail.article.stock +
+                            Number(removedDetail.amount),
                     }),
                 );
-                await queryRunner.commitTransaction();
-                await queryRunner.release();
-            } else {
-                await Promise.all(
-                    articles.map((article) => {
-                        const articleAmount = createArticleExitDetailsDto.find(
-                            (c) => {
-                                return c.idArticle === article.id;
-                            },
-                        ).amount;
-                        return queryRunner.manager.update(Article, article.id, {
-                            stock: article.stock - articleAmount,
-                        });
-                    }),
-                );
-                await queryRunner.commitTransaction();
-                await queryRunner.release();
-            }
+
+            await Promise.all([...updates, ...removedUpdates]);
+            await queryRunner.commitTransaction();
         } catch (error) {
-            console.log(error);
             await queryRunner.rollbackTransaction();
-            await queryRunner.release();
+            if (error instanceof BadRequestException) {
+                throw error;
+            }
+            console.log(error);
             throw new BadRequestException(
-                'No es posible asignar un valor negativo al stock de un articulo',
+                'Ocurrió un error al actualizar el stock de los artículos',
             );
+        } finally {
+            await queryRunner.release();
         }
     }
     // aumentar stock al eliminar vale de salida
